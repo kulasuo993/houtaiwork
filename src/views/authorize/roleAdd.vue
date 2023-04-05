@@ -7,21 +7,24 @@
       <el-form-item label="描述" prop="description">
         <el-input type="textarea" v-model="dialog.form.description" placeholder="请输入描述"></el-input>
       </el-form-item>
-      <!-- <el-form-item label="权限">
-          <el-checkbox v-for="item in objNew" :label="item.value" :value  ="item.value">
-          </el-checkbox>
-      </el-form-item> -->
-      <!-- <el-checkbox >全选</el-checkbox> -->
-      
-      <div style="margin: 15px 0;"></div>
-      <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
-        <el-checkbox  v-for="item in objNew" :label="item.value" :value="item.value" v-model="checkAll" @change="handleCheckAllChange"></el-checkbox>
-      </el-checkbox-group>
+
+
+      <el-form-item label="权限" >
+        <div v-for="(item,index) in objNew" :key="index">
+          <div class="moudle">
+            <el-checkbox :key="item.label" :label="item.name" v-model="item.isCheck"></el-checkbox>
+            <el-checkbox v-model="item.checkAll" :disabled="item.checkAllDisabled">全选</el-checkbox>
+          </div>
+          <div class="node">
+            <el-checkbox v-for="c in item.value" 
+            :key="c.label" :label="c.name"
+            v-model="c.isCheck" :disabled="c.disabled">{{ c.name }}</el-checkbox>
+          </div>
+        </div>
+        <el-button type="primary" size="medium" @click.stop="onSubmit" class="send">立即创建</el-button>
+      </el-form-item>
      
-      <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
-        
-        <el-checkbox v-for="item in objNew1" :label="item.label" :value="item.value"></el-checkbox>
-      </el-checkbox-group>
+
     </el-form>
     
   </div>
@@ -29,7 +32,7 @@
 
 <script>
 import { apiGetAllPermissionCategory,apiGetPermissionCategory} from '@/api/authorize.js'
-const cityOptions = ['上海', '北京', '广州', '深圳'];
+import { thisExpression } from '@babel/types'
 const formData = {
   name: '',
   description: ''
@@ -40,12 +43,16 @@ export default {
   data() {
     return {
       checkAll: false,
-      checkedCities: ['上海', '北京'],
-      cities: cityOptions,
-      isIndeterminate: true,
       objNew:[],
-      objNew1:[],
       permission:{},
+      arr1:[],
+      arr2:[],
+      arr3:[],
+      checkAll:false,
+      checkAllDisabled:false,
+      isCheck:false,
+      disabled:false,
+
       dialog:{
         form:{
           name: '',
@@ -70,18 +77,19 @@ export default {
   methods: {
     getList(){
       apiGetAllPermissionCategory(this.permission).then(response =>{
+        // console.log(response.data)
         for (const j in response.data) {
-          this.objNew.push({ value: j, label: response.data[j] })
-          for(const i in response.data[j]){
-            // console.log(i)
-            this.objNew1.push({ value: i, label: response.data[j][i] })
-           
-          }
-          
+           this.arr1 = j
+           this.arr2=( response.data[j])
+           var arr = []
+            for (let i in this.arr2) {
+            arr.push({label:i,name:this.arr2[i],isCheck:this.isCheck,disabled:this.disabled,})
+            }
+          this.objNew.push({checkAll:this.checkAll
+            ,checkAllDisabled:this.checkAllDisabled,isCheck:this.isCheck,
+            label:this.arr1,name:this.arr1,value:arr})
         }
         console.log(this.objNew)
-        // console.log(this.objNew)
-       
       }).catch(err =>{
         console.log(err)
       })
@@ -99,3 +107,15 @@ export default {
 }
 </script>
 
+<style scoped>
+  .node{
+    width: 95%;
+    margin-left: 30px;
+    margin-top: 5px;
+  }
+ 
+ .send{
+  display: block;
+  margin: 0 auto;
+ }
+</style>
