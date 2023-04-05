@@ -109,3 +109,60 @@ export function apiGetPermissionCategory(data) {
     data
   })
 }
+
+/**
+* 获取全部权限信息
+*/
+export function apiGetAllPermissionCategory(data) {
+  return request({
+    url: '/rbac/get-all-permission',
+    method: 'post',
+    data
+  })
+}
+
+
+/**
+* 管理员列表
+*/
+export function apiAdminUserList(data) {
+  return request({
+    url: '/admin-user/list',
+    method: 'post',
+    data
+  })
+}
+
+
+/**
+* 添加管理员
+*/
+export function apiAdminUserCreat(data) {
+  return request({
+    url: '/admin-user/create',
+    method: 'post',
+    data
+  })
+}
+
+/**
+* 修改管理员
+*/
+export function apiAdminUserCUpdata(data) {
+  return request({
+    url: '/admin-user/update',
+    method: 'post',
+    data
+  })
+}
+
+/**
+* 删除管理员
+*/
+export function apiAdminUserDelete(data) {
+  return request({
+    url: '/admin-user/delete',
+    method: 'post',
+    data
+  })
+}

@@ -21,7 +21,7 @@
           <el-button type="primary" size="small" @click="openDialog(scope.row.name,scope.row)">
             编辑
           </el-button>
-          <el-button type="danger" size="small" @click="DialogEdit(scope.row)">
+          <el-button type="danger" size="small" @click="DialogDelete(scope.row)">
             删除
           </el-button>
         </template>
@@ -41,7 +41,10 @@
     >
       <el-form ref="form" :rules="dialog.formRule" :model="dialog.form" label-width="100px" size="small">
         <el-form-item label="类型" prop="category">
-          <el-select v-model="objNew.value" placeholder="请选择类型" style="width: 100%">
+          <el-select v-if="dialog.form.id" disabled v-model="dialog.form.category"  placeholder="请选择类型" style="width: 100%">
+            <el-option v-for="item in objNew" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+          <el-select v-else-if="!dialog.form.id"  v-model="dialog.form.category"   placeholder="请选择类型" style="width: 100%">
             <el-option v-for="item in objNew" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -71,7 +74,8 @@ import Pagination from '@/components/Pagination'
 const formData = {
   name: '',
   description: '',
-  category: ''// 权限分类
+  category: '',// 权限分类
+  id:''
 }
 export default {
   name: 'PermissionList',
@@ -123,6 +127,7 @@ export default {
       })
     },
     getPermission() {
+      this.objNew=[]
       apiGetPermissionCategory(this.permission).then(res => {
         for (const j in res.data) {
           this.objNew.push({ value: j, label: res.data[j] })
@@ -134,25 +139,39 @@ export default {
     searchData() {
       this.getList()
     },
+    //获取当前权限信息
+    getPermissionInfo(id){
+      this.dialog.status = true
+      const data = {
+        id:id
+      }
+      apiGetPermission(data).then(response =>{
+        this.dialog.form.category= response.data.category
+        this.dialog.form.name= response.data.name
+        this.dialog.form.description= response.data.description
+      }).catch(err =>{
+        console.log(err)
+      })
+    },
     /**
      * 打开 创建/修改的Dialog
      * @param id 虚拟ID（修改才会有）
      * @param item 物品信息
      */
     openDialog(id, item) {
+      this.getPermission()
       this.dialog.status = true
       if (!id) {
         return false
       }
-      this.dialog.form = {
-        name: item.name,
-        description: item.description,
-        id: item.name,
-        category: ''
-      }
+      this.dialog.status = true
+      this.getPermissionInfo(id)
+      this.dialog.form.id = id
+      console.log(this.dialog.form)
     },
     closeDialog() {
       this.dialog.form = formData
+      this.dialog.form.id =''
       this.dialog.loading = null
       this.$refs['form'].resetFields()
       this.dialog.status = false
@@ -169,13 +188,17 @@ export default {
       }).then(() => {
         if (!this.dialog.form.id) {
           const req = JSON.parse(JSON.stringify(this.dialog.form))
+          delete req.id
+          console.log(req)
           apiPermissionCreat(req).then(res => {
             this.$message({
               message: '添加成功',
               type: 'success'
             })
+            delete req.id
             this.closeDialog()
             this.getList()
+            this.getPermission()
           }).catch(err => {
             console.log(err)
           })
@@ -196,7 +219,7 @@ export default {
         }
       })
     },
-    DialogEdit(item) {
+    DialogDelete(item) {
       this.dialog.form = {
         name: item.name,
         description: item.description,
@@ -206,7 +229,6 @@ export default {
         id: item.name
       }
       const req = JSON.parse(JSON.stringify(this.dialog.form))
-
       this.$confirm('确定删除?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

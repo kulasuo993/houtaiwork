@@ -84,7 +84,6 @@ const actions = {
     commit('TOGGLE_DEVICE', device)
   },
   checkPermissions({ commit, state }, permissions) {
-    console.log(permissions)
     state.permissions.reload = false
     state.permissions.system_admin = permissions.user.system_admin
 

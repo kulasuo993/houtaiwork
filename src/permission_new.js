@@ -23,7 +23,6 @@ router.beforeEach(async(to, from, next) => {
   // determine whether the user has logged in
   // 从cookie中获取token
   const hasToken = getToken()
-  console.log(hasToken)
   if (hasToken) {
     // 有token,说明登录了
     if (to.path === '/login') {
@@ -32,7 +31,6 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done() // hack: https://github.com/PanJiaChen/vue-element-admin/pull/2939
     } else {
-      console.log(store.getters.permissions.reload)
       if (store.getters.permissions.reload) {
         if (to.path !== '/login') {
           await store.dispatch('app2/checkUserLogin', hasToken)
