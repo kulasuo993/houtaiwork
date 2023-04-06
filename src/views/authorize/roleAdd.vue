@@ -56,7 +56,8 @@ export default {
       dialog: {
         form: {
           name: '',
-          description: ''
+          description: '',
+          selected_permissions:{}
         },
         formRule: {
           name: [
@@ -95,39 +96,46 @@ export default {
       })
     },
     changeGroup(objNew){
+      console.log(objNew)
       for(let i in objNew.value){
         if(objNew.isCheck == true){
           objNew.value[i].disabled = true
-          objNew.value[i].isCheck = true
+          // objNew.value[i].isCheck = true
           objNew.checkAllDisabled = true
-          objNew.checkAll = true
+          // objNew.checkAll = true
+          this.arr4 = this.arr4.filter(item => item !=objNew.value[i].label)
         }else{
           objNew.value[i].disabled = false
-          objNew.value[i].isCheck = false
+          // objNew.value[i].isCheck = false
           objNew.checkAllDisabled = false
-          objNew.checkAll = false
+          if(objNew.value[i].isCheck){
+            this.arr4.push(objNew.value[i].label)
+          }
+          // objNew.checkAll = false
         }
       }
     },
     changeAll(objNew){
-     
       for(let i in objNew.value){
         if(objNew.checkAll == true){
-          this.arr4.push(objNew.value[i].name)
+          this.arr4.push(objNew.value[i].label)
+          this.arr4 = Array.from(new Set(this.arr4))
           objNew.value[i].isCheck = true
         }else{
           objNew.value[i].isCheck = false
-          this.arr4 = this.arr4.filter(item => item =objNew.value[i].name)
+          this.arr4 = this.arr4.filter(item => item !=objNew.value[i].label)
+          this.arr4 = Array.from(new Set(this.arr4))
         }
       }
     },
     itemChoose(c,item){
       let num = 0
-      console.log(c.isCheck)
       if(c.isCheck){
-        this.arr4.push(c.name)
+        this.arr4.push(c.label)
+        this.arr4 = Array.from(new Set(this.arr4))
       }else{
-        this.arr4 = this.arr4.filter(item => item =c.name)
+        this.arr4 = this.arr4.filter(item => item != c.label)
+        this.arr4 = Array.from(new Set(this.arr4));
       }
       console.log(this.arr4)
       for(let i in item.value){
@@ -143,8 +151,26 @@ export default {
       }
     },
     onSubmit(){
+      this.dialog.form.selected_permissions = this.arr4.join(",")
       const req = JSON.parse(JSON.stringify(this.dialog.form))
-      apiCreatRole(req).then(res => {
+      new Promise((resolve, reject) => {
+        this.$refs['ruleForm'].validate((valid) => {
+          if (!valid) {
+            reject(new Error())
+            return
+          }
+         
+          if(req.selected_permissions == ''){
+            this.$message({
+              message: '权限选项不能为空',
+              type: 'error'
+            })
+            return
+          }
+          resolve(true)
+        })
+      }).then(() => {
+        apiCreatRole(req).then(res => {
         this.$message({
           message: '添加成功',
           type: 'success'
@@ -154,6 +180,7 @@ export default {
         })
       }).catch(err =>{
         console.log(err)
+      })
       })
     }
   }
