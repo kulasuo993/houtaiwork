@@ -1,5 +1,5 @@
 <template>
-  <div class="userListPage">
+  <div class="userListPage" style="padding: 20px;">
     <el-form :inline="true" :model="searchForm">
       <el-form-item label="">
         <el-input v-model="searchForm.username" clearable placeholder="用户名" />
@@ -47,7 +47,7 @@
           <el-button type="primary" size="small" @click="openDialog(scope.row.user_id,scope.row)">
             编辑
           </el-button>
-          <el-button type="success" size="small">设置角色</el-button>
+          <el-button type="success" size="small" @click="editUser(scope.row.user_id)">设置角色</el-button>
           <el-button type="info" size="small" @click="editPssword">修改密码</el-button>
           <el-button type="danger" size="small" @click="DialogDelete(scope.row)">
             删除
@@ -56,17 +56,46 @@
       </el-table-column>
     </el-table>
     <pagination v-show="total>0" :total="total" :page.sync="searchForm.page" :limit.sync="searchForm.page_size" @pagination="getList" />
-  
+      
+        <el-dialog
+          :title="'设置用户角色'"
+          v-loading="listLoading"
+          :visible.sync="isOpen"
+          width="400px"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          :destroy-on-close="true"
+          @close="closeDialog1"
+        >
+        <el-checkbox-group v-model="arr2">
+          <el-checkbox  
+            v-for="item in arr" 
+            :key="item.description" 
+            :label="item.name"
+          >
+            {{ item.description }}
+          </el-checkbox>
+        </el-checkbox-group>
+        
+        <div class="btn">
+          <el-button type="primary" @click="setRole()">确认</el-button>
+          <el-button @click="closeDialog1">取消</el-button>
+        </div>
+        
+        </el-dialog>
+      
+     
+
       <el-dialog
-      ref="formDialog"
-      :title="(dialog.form.user_id?'修改用户':'添加用户')"
-      :visible.sync="dialog.status"
-      width="540px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :destroy-on-close="true"
-      @close="closeDialog"
-    >
+        ref="formDialog"
+        :title="(dialog.form.user_id?'修改用户':'添加用户')"
+        :visible.sync="dialog.status"
+        width="540px"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :destroy-on-close="true"
+        @close="closeDialog"
+      >
       <el-form ref="form" :rules="dialog.formRule" :model="dialog.form" label-width="100px" size="small">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="dialog.form.username" placeholder="用户名"/>
@@ -102,12 +131,16 @@
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" size="small" @click.stop="onSubmit">确 认</el-button>
       </div>
-    </el-dialog>
+      </el-dialog>
   </div>
 </template>
 
 <script>
-import {apiAdminUserList,apiAdminUserCreat,apiAdminUserCUpdata,apiAdminUserDelete} from '@/api/authorize.js'
+import {apiAdminUserList,apiAdminUserCreat,
+  apiAdminUserCUpdata,apiAdminUserDelete,
+  apiGetUserRole,apiGetAllRole,
+  apiSetUserRole} from '@/api/authorize.js'
+
 import Pagination from '@/components/Pagination'
 const formData = {
   username: '', //no 搜索条件(模糊搜索),用户名
@@ -116,7 +149,8 @@ const formData = {
   status:'200',//搜索条件(精确搜索),用户状态,100-异常,200-正常
   password:'',
   mobile:'',
-  is_oa:'1'
+  is_oa:'1',
+  user_id: ''
 }
 
 export default {
@@ -124,6 +158,8 @@ export default {
   components: { Pagination},
   data() {
     return {
+      user_id: '',
+      isOpen: false,
       searchForm: {
         page_size: 20,
         page: 1,
@@ -131,9 +167,14 @@ export default {
         nickname: '', //搜索条件(模糊搜索),昵称
         email:'', //搜索条件(模糊搜索),邮箱
         status:'',//搜索条件(精确搜索),用户状态,100-异常,200-正常
-        is_oa:''
+        is_oa:'',
       },
       list:null,
+      list2:null,
+      arr:[],
+      arr2:[],
+      arr3:[],
+      obj:{},
       listLoading: false,
       total: 0,
       dialog: {
@@ -142,7 +183,7 @@ export default {
         form: formData,
         formRule: {
           username: [
-            { required: true, message: '请输入用户名', trigger: 'blur' }
+            { required: true, message: '请输入用户名', trigger: 'blur' },
           ],
           nickname: [
             { required: true, message: '请输入用户昵称', trigger: 'blur' }
@@ -164,6 +205,7 @@ export default {
   },
   created() {
     this.getList()
+    this.getAllRole()
   },
   methods: {
     getList() {
@@ -173,6 +215,57 @@ export default {
         this.list = data.rows
         this.total = data.totalCount
         this.listLoading = false
+        // for(let i in this.list){
+        //   this.arr3.push(this.list[i].user_id)
+        // }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    getUserRole(req){
+      apiGetUserRole(req).then(response => {
+        for(const i in response.data){
+          this.arr2.push(response.data[i].name)
+          this.arr3=req.user_id
+        }
+        console.log(this.arr2)
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    setRole(){
+      this.obj = this.arr2.join(",")
+      this.dialog.form = {
+        user_id: this.arr3,
+        selected_roles:this.obj
+      }
+      const req = JSON.parse(JSON.stringify(this.dialog.form))
+      apiSetUserRole(req).then(res => {
+        this.$message({
+          message:"成功修改",
+          type:'success'
+        })
+        this.closeDialog1()
+        this.getList()
+      })
+    },
+    editUser(id){
+      this.isOpen = true
+      this.getAllRole()
+      const req ={
+        user_id:id,
+      }
+     this.getUserRole(req)
+    },
+    getAllRole(){
+      this.arr=[]
+      this.arr2=[]
+      apiGetAllRole(this.searchForm).then(res=>{
+      //  this.list2 = res.data
+      for(const i in res.data){
+        this.arr.push({name:i,description:res.data[i].description})
+      }
+      // console.log(this.arr)
       }).catch(err => {
         console.log(err)
       })
@@ -185,6 +278,10 @@ export default {
       this.dialog.loading = null
       this.$refs['form'].resetFields()
       this.dialog.status = false
+    },
+    closeDialog1(){
+      this.arr=[],
+      this.isOpen= false
     },
      /**
      * 打开 创建/修改的Dialog
@@ -215,6 +312,9 @@ export default {
           }
           resolve(true)
         })
+        if(this.dialog.form.username == 'aa'){
+          alert(111)
+        }
       }).then(()=>{
         if(!this.dialog.form.user_id){
           const req = JSON.parse(JSON.stringify(this.dialog.form))
@@ -283,8 +383,13 @@ export default {
           message: '没有api，但也算你修改密码成功'
         })
     }
-  
   }
 }
 </script>
 
+<style scoped>
+  .btn{
+    margin-top: 30px;
+    margin-left: 200px;
+  }
+</style>

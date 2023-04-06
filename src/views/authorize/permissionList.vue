@@ -1,5 +1,5 @@
 <template>
-  <div class="userListPage">
+  <div class="userListPage" style="padding: 20px;">
     <el-form :inline="true" :model="searchForm">
       <el-form-item label="">
         <el-input v-model="searchForm.name" clearable placeholder="名称" />

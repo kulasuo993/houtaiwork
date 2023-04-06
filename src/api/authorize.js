@@ -166,3 +166,50 @@ export function apiAdminUserDelete(data) {
     data
   })
 }
+
+/**
+* 获取全部角色简要信息
+*/
+export function apiGetAllRole(data) {
+  return request({
+    url: '/rbac/get-all-role',
+    method: 'post',
+    data
+  })
+}
+
+/**
+* 获取权限用户角色
+*/
+export function apiGetUserRole(data) {
+  return request({
+    url: '/rbac/get-user-role',
+    method: 'post',
+    data
+  })
+}
+
+
+/**
+* 设置权限用户角色
+*/
+export function apiSetUserRole(data) {
+  return request({
+    url: '/rbac/set-user-role',
+    method: 'post',
+    data
+  })
+}
+
+
+
+/**
+* 添加角色
+*/
+export function apiCreatRole(data) {
+  return request({
+    url: '/rbac/create-role',
+    method: 'post',
+    data
+  })
+}

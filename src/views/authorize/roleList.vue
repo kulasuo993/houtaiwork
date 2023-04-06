@@ -1,5 +1,5 @@
 <template>
-  <div class="userListPage">
+  <div class="userListPage" style="padding: 20px;">
     <el-form :inline="true" :model="searchForm">
       <el-form-item label="">
         <el-input v-model="searchForm.name" clearable placeholder="名称" />
@@ -17,7 +17,7 @@
       <el-table-column label="描述" align="center" prop="description" />
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" @click="openDialog(scope.row.medal_id,scope.row)">
+          <el-button type="primary" size="small" @click="EditDialog(scope.row.medal_id,scope.row)">
             编辑
           </el-button>
           <el-button type="danger" size="small" @click="openDialog(scope.row.medal_id,scope.row)">
@@ -80,7 +80,12 @@ export default {
       this.$router.push({
         name: 'RoleAdd'
       })
-    }
+    },
+    EditDialog(){
+      this.$router.push({
+        name: 'RoleEdit'
+      })
+    },
   }
 }
 </script>
