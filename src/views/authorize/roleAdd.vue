@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { apiGetAllPermissionCategory } from '@/api/authorize.js'
+import { apiGetAllPermissionCategory, apiCreatRole} from '@/api/authorize.js'
 // import { thisExpression } from '@babel/types'
 
 export default {
@@ -48,6 +48,7 @@ export default {
       arr1: [],
       arr2: [],
       arr3: [],
+      arr4: [],
       checkAll: false,
       checkAllDisabled: false,
       isCheck: false,
@@ -76,7 +77,7 @@ export default {
   methods: {
     getList() {
       apiGetAllPermissionCategory(this.permission).then(response => {
-        // console.log(response.data)
+        //  console.log(response.data)
         for (const j in response.data) {
           this.arr1 = j
           this.arr2 = (response.data[j])
@@ -109,17 +110,28 @@ export default {
       }
     },
     changeAll(objNew){
+     
       for(let i in objNew.value){
         if(objNew.checkAll == true){
+          this.arr4.push(objNew.value[i].name)
           objNew.value[i].isCheck = true
         }else{
           objNew.value[i].isCheck = false
+          this.arr4 = this.arr4.filter(item => item =objNew.value[i].name)
         }
       }
     },
     itemChoose(c,item){
       let num = 0
+      console.log(c.isCheck)
+      if(c.isCheck){
+        this.arr4.push(c.name)
+      }else{
+        this.arr4 = this.arr4.filter(item => item =c.name)
+      }
+      console.log(this.arr4)
       for(let i in item.value){
+        // console.log(item.value[i].name)
           if(item.value[i].isCheck){
               num ++
           }
@@ -129,6 +141,20 @@ export default {
       }else{
         item.checkAll  = false
       }
+    },
+    onSubmit(){
+      const req = JSON.parse(JSON.stringify(this.dialog.form))
+      apiCreatRole(req).then(res => {
+        this.$message({
+          message: '添加成功',
+          type: 'success'
+        })
+        this.$router.push({
+          name: 'RoleList'
+        })
+      }).catch(err =>{
+        console.log(err)
+      })
     }
   }
 }

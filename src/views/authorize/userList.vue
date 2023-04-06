@@ -234,6 +234,7 @@ export default {
       })
     },
     setRole(){
+      console.loh(this.arr2)
       this.obj = this.arr2.join(",")
       this.dialog.form = {
         user_id: this.arr3,

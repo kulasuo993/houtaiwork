@@ -213,3 +213,14 @@ export function apiCreatRole(data) {
     data
   })
 }
+
+/**
+* 删除角色
+*/
+export function apiDeleteRole(data) {
+  return request({
+    url: '/rbac/delete-role',
+    method: 'post',
+    data
+  })
+}

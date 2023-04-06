@@ -20,7 +20,7 @@
           <el-button type="primary" size="small" @click="EditDialog(scope.row.medal_id,scope.row)">
             编辑
           </el-button>
-          <el-button type="danger" size="small" @click="openDialog(scope.row.medal_id,scope.row)">
+          <el-button type="danger" size="small" @click="DeleteDialog(scope.row.name)">
             删除
           </el-button>
         </template>
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { apiAuthorizeList } from '@/api/authorize'
+import { apiAuthorizeList ,apiDeleteRole} from '@/api/authorize'
 import Pagination from '@/components/Pagination'
 
 const formData = {
@@ -86,7 +86,32 @@ export default {
         name: 'RoleEdit'
       })
     },
-  }
+    DeleteDialog(item){
+      let req ={
+        id:item
+      }
+      this.$confirm('确定删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        apiDeleteRole(req).then(res => {
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+          this.getList()
+        }).catch(err => {
+          console.log(err)
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    }
+}
 }
 </script>
 
