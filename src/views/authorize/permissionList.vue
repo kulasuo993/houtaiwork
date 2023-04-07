@@ -27,6 +27,7 @@
         </template>
       </el-table-column>
     </el-table>
+
     <pagination v-show="total>0" :total="total" :page.sync="searchForm.page" :limit.sync="searchForm.page_size" @pagination="getList" />
 
     <el-dialog
@@ -41,10 +42,10 @@
     >
       <el-form ref="form" :rules="dialog.formRule" :model="dialog.form" label-width="100px" size="small">
         <el-form-item label="类型" prop="category">
-          <el-select v-if="dialog.form.id" disabled v-model="dialog.form.category"  placeholder="请选择类型" style="width: 100%">
+          <el-select v-if="dialog.form.id" v-model="dialog.form.category" disabled placeholder="请选择类型" style="width: 100%">
             <el-option v-for="item in objNew" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
-          <el-select v-else-if="!dialog.form.id"  v-model="dialog.form.category"   placeholder="请选择类型" style="width: 100%">
+          <el-select v-else-if="!dialog.form.id" v-model="dialog.form.category" placeholder="请选择类型" style="width: 100%">
             <el-option v-for="item in objNew" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -74,8 +75,8 @@ import Pagination from '@/components/Pagination'
 const formData = {
   name: '',
   description: '',
-  category: '',// 权限分类
-  id:''
+  category: '', // 权限分类
+  id: ''
 }
 export default {
   name: 'PermissionList',
@@ -127,7 +128,7 @@ export default {
       })
     },
     getPermission() {
-      this.objNew=[]
+      this.objNew = []
       apiGetPermissionCategory(this.permission).then(res => {
         for (const j in res.data) {
           this.objNew.push({ value: j, label: res.data[j] })
@@ -139,17 +140,17 @@ export default {
     searchData() {
       this.getList()
     },
-    //获取当前权限信息
-    getPermissionInfo(id){
+    // 获取当前权限信息
+    getPermissionInfo(id) {
       this.dialog.status = true
       const data = {
-        id:id
+        id: id
       }
-      apiGetPermission(data).then(response =>{
-        this.dialog.form.category= response.data.category
-        this.dialog.form.name= response.data.name
-        this.dialog.form.description= response.data.description
-      }).catch(err =>{
+      apiGetPermission(data).then(response => {
+        this.dialog.form.category = response.data.category
+        this.dialog.form.name = response.data.name
+        this.dialog.form.description = response.data.description
+      }).catch(err => {
         console.log(err)
       })
     },
@@ -167,11 +168,10 @@ export default {
       this.dialog.status = true
       this.getPermissionInfo(id)
       this.dialog.form.id = id
-      console.log(this.dialog.form)
     },
     closeDialog() {
       this.dialog.form = formData
-      this.dialog.form.id =''
+      this.dialog.form.id = ''
       this.dialog.loading = null
       this.$refs['form'].resetFields()
       this.dialog.status = false
@@ -189,7 +189,6 @@ export default {
         if (!this.dialog.form.id) {
           const req = JSON.parse(JSON.stringify(this.dialog.form))
           delete req.id
-          console.log(req)
           apiPermissionCreat(req).then(res => {
             this.$message({
               message: '添加成功',
@@ -205,7 +204,6 @@ export default {
         }
         if (this.dialog.form.id) {
           const req = JSON.parse(JSON.stringify(this.dialog.form))
-          console.log(req)
           apiPermissionEdit(req).then(res => {
             this.$message({
               message: '成功修改',
@@ -221,11 +219,6 @@ export default {
     },
     DialogDelete(item) {
       this.dialog.form = {
-        name: item.name,
-        description: item.description,
-        category: item.category, // 权限分类
-        data: item.data, // 参数
-        rule_name: item.rule_name, // 应用规则
         id: item.name
       }
       const req = JSON.parse(JSON.stringify(this.dialog.form))

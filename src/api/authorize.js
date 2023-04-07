@@ -121,7 +121,6 @@ export function apiGetAllPermissionCategory(data) {
   })
 }
 
-
 /**
 * 管理员列表
 */
@@ -132,7 +131,6 @@ export function apiAdminUserList(data) {
     data
   })
 }
-
 
 /**
 * 添加管理员
@@ -189,7 +187,6 @@ export function apiGetUserRole(data) {
   })
 }
 
-
 /**
 * 设置权限用户角色
 */
@@ -201,14 +198,34 @@ export function apiSetUserRole(data) {
   })
 }
 
-
-
 /**
 * 添加角色
 */
 export function apiCreatRole(data) {
   return request({
     url: '/rbac/create-role',
+    method: 'post',
+    data
+  })
+}
+
+/**
+* 获取角色信息
+*/
+export function apiGetRole(data) {
+  return request({
+    url: '/rbac/get-role',
+    method: 'post',
+    data
+  })
+}
+
+/**
+* 修改角色
+*/
+export function apiUpdateRole(data) {
+  return request({
+    url: '/rbac/update-role',
     method: 'post',
     data
   })

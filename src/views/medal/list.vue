@@ -208,12 +208,10 @@
 </template>
 
 <script>
-import { apiMedalList, apiMedalCreate, apiMedalUpdate } from '@/api/medal'
+import { apiMedalList } from '@/api/medal'
 import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils/index'
 import fileUpload from '@/components/Upload/fileUploadBtn'
-import { resolve } from 'path'
-import { reject } from 'q'
 
 const formData = {
   medal_id: null,

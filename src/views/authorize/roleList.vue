@@ -17,7 +17,7 @@
       <el-table-column label="描述" align="center" prop="description" />
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" @click="EditDialog(scope.row.medal_id,scope.row)">
+          <el-button type="primary" size="small" @click="EditDialog(scope.row.name,scope.row.description)">
             编辑
           </el-button>
           <el-button type="danger" size="small" @click="DeleteDialog(scope.row.name)">
@@ -31,15 +31,9 @@
 </template>
 
 <script>
-import { apiAuthorizeList ,apiDeleteRole} from '@/api/authorize'
+import { apiAuthorizeList, apiDeleteRole } from '@/api/authorize'
 import Pagination from '@/components/Pagination'
 
-const formData = {
-  page: 0,
-  page_size: '',
-  name: '',
-  description: ''
-}
 export default {
   name: 'RoleList',
   components: { Pagination },
@@ -57,6 +51,9 @@ export default {
     }
   },
   watch: {
+    $route() {
+      this.getList()
+    }
   },
   created() {
     this.getList()
@@ -81,14 +78,18 @@ export default {
         name: 'RoleAdd'
       })
     },
-    EditDialog(){
+    EditDialog(item, description) {
       this.$router.push({
-        name: 'RoleEdit'
+        name: 'RoleEdit',
+        params: {
+          id: item,
+          description: description
+        }
       })
     },
-    DeleteDialog(item){
-      let req ={
-        id:item
+    DeleteDialog(item) {
+      const req = {
+        id: item
       }
       this.$confirm('确定删除?', '提示', {
         confirmButtonText: '确定',
@@ -111,7 +112,7 @@ export default {
         })
       })
     }
-}
+  }
 }
 </script>
 
